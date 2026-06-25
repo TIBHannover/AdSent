@@ -16,7 +16,7 @@ class adSent_Mistral:
                                                             device_map="balanced"
                                                             )
         self._tokenizer = AutoTokenizer.from_pretrained(tokenizer,use_fast=False)
-        self._tokenizer.eos_token = '<\s>'
+        self._tokenizer.eos_token = '</s>'
         self._tokenizer.pad_token=self._tokenizer.eos_token
         self._device = device
         self._params = {"max_length": max_length}
@@ -39,15 +39,14 @@ class adSent_llama:
         tokenizer="meta-llama/Llama-3.1-8B-Instruct",
         device='cuda',
         max_length=1024,
-        access_token=None
     ):
         
         self._model = AutoModelForCausalLM.from_pretrained(model,
                                                             torch_dtype=torch.float16, 
-                                                            device_map="balanced",use_auth_token=access_token
+                                                            device_map="balanced"
                                                             )
         self._model.gradient_checkpointing_enable()
-        self._tokenizer = AutoTokenizer.from_pretrained(tokenizer,use_fast=True, use_auth_token=access_token)
+        self._tokenizer = AutoTokenizer.from_pretrained(tokenizer,use_fast=True)
         self.label_token_fake = self._tokenizer("fake", add_special_tokens=False).input_ids[0]
         self.label_token_real = self._tokenizer("real", add_special_tokens=False).input_ids[0]
         self._params = {"max_length": max_length}
@@ -271,8 +270,7 @@ class adSent_qwen:
 
         self._tokenizer = AutoTokenizer.from_pretrained(tokenizer)
        
-        #self._tokenizer.eos_token = '<\s>'
-        #self._tokenizer.pad_token=self._tokenizer.eos_token
+
         self._device = device
         self._params = {"max_length": max_length}
 

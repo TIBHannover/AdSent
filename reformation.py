@@ -16,7 +16,6 @@ def get_args():
     parser.add_argument("--max_seq_length", type=int,default=1024)
     parser.add_argument("--news_value", default='sen') #sentiment
     parser.add_argument("--sentiment",type=str,choices=["positive", "negative", "neutral"], default="neutral")
-    parser.add_argument("--hf_token", type=str, default=None)
     
     args = parser.parse_args()
     print(args)
@@ -38,7 +37,7 @@ def main():
         data_test = pickle.load(file)
     ################ Load the model #################################################################
     #model=adSent_qwen(model=args.model_name,tokenizer=args.model_name,max_length=args.max_seq_length)
-    model=adSent_llama(model=args.model_name,tokenizer=args.model_name,access_token=args.hf_token,max_length=args.max_seq_length)
+    model=adSent_llama(model=args.model_name,tokenizer=args.model_name,max_length=args.max_seq_length)
     ############### input data to the model ###########################################################
     data_test['adsent']=[]
     for i in tqdm.tqdm(range(len(data_test["news"]))):
