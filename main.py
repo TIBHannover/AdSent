@@ -4,7 +4,7 @@ import torch
 import tqdm
 import argparse
 import os
-from models import adSent_Mistral,adSent_llama,adSent_qwen
+from models import adSent_llama,adSent_qwen
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_recall_fscore_support as score
 from sklearn.utils.multiclass import unique_labels
@@ -40,8 +40,8 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", type=str, choices=["inference", "train"], default="inference")
     parser.add_argument("--use_finetuned_model", action=argparse.BooleanOptionalAction,default=False)
-    parser.add_argument("--model_type", type=str, choices=["llama", "qwen", "mistral"], default="llama")
-    parser.add_argument("--model_name", default='meta-llama/Llama-3.1-8B-Instruct') #{Open-Orca/Mistral-7B-OpenOrca, meta-llama/Llama-3.1-8B-Instruct,Qwen/Qwen2.5-7B-Instruct,pretrained_model}
+    parser.add_argument("--model_type", type=str, choices=["llama", "qwen"], default="llama")
+    parser.add_argument("--model_name", default='meta-llama/Llama-3.1-8B-Instruct') #{meta-llama/Llama-3.1-8B-Instruct,Qwen/Qwen2.5-7B-Instruct,pretrained_model}
     parser.add_argument("--checkpoint_dir", default='') #./outputs/llama-31-8b-instruct/00024-2025-07-25_14-30-54
     #parser.add_argument("--prompt", type=str, default="You are given a news article. Your specific task is to evaluate its factual correctness. Is this article factually accurate? Answer with one word only: fake or real")
     parser.add_argument("--prompt", type=str, default="Is this news article fake or real? answer with only one word, fake or real")
@@ -70,8 +70,6 @@ def load_model(args, model_path=None):
         return adSent_llama(model=path, tokenizer=path, max_length=args.max_seq_length)
     elif args.model_type == "qwen":
         return adSent_qwen(model=path, tokenizer=path, max_length=args.max_seq_length)
-    elif args.model_type == "mistral":
-        return adSent_Mistral(model=path, tokenizer=path, max_length=args.max_seq_length)
 
 class PromptDataset(Dataset):
     def __init__(self, x, y, prompt_template):
@@ -121,7 +119,7 @@ def inference(args):
             for i in tqdm.tqdm(range(len(data_test["news"]))):
                 news_text = data_test["news"][i]
                 prompt=get_prompt(args.prompt,news_text)
-                label_logits = model.training_classification_style_inference(prompt)
+                label_logits = model.classification_style_inference(prompt)
                 pred = torch.argmax(label_logits).item()
                 print(pred) 
                 data_test['prediction'].append(pred)
@@ -198,12 +196,8 @@ def train(args):
         total_loss = 0
         total_preds=0
         correct_preds=0
-        for prompt, label in tqdm.tqdm(dataloader):    
-            #print(f'This is prompt:{prompt[0]}')
-            #print(f'This is label:{label[0]}')          
-            #loss = model.training(prompt[0], label[0])
+        for prompt, label in tqdm.tqdm(dataloader):
             loss,label_logits = model.training_classification_style(prompt[0], label[0])
-            #print(f'This is loss:{loss}') 
             loss.backward()
             optimizer.step()
             lr_scheduler.step()
@@ -228,7 +222,7 @@ def train(args):
     for i in tqdm.tqdm(range(len(test_dict["news"]))):
         news_text = test_dict["news"][i]
         prompt=get_prompt(args.prompt,news_text)
-        label_logits = model.training_classification_style_inference(prompt)
+        label_logits = model.classification_style_inference(prompt)
         pred = torch.argmax(label_logits).item() 
         test_dict['prediction'].append(pred)
 

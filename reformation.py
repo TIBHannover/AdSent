@@ -4,7 +4,7 @@ import torch
 import tqdm
 import argparse
 import os
-from models import adSent_Mistral,adSent_GPT35,adSent_llama,adSent_qwen
+from models import adSent_Mistral,adSent_llama,adSent_qwen
 
 def get_args():
     
@@ -46,10 +46,6 @@ def main():
         formatted_prompt = args.prompt.format(args.sentiment)
         prompt=get_prompt(formatted_prompt,news_text)
         full_response,filtered_response=model.sent_attack(prompt)
-        #print(f'this is original models res:{full_response}')
-        #print(f'this is the post_processed response:{filtered_response}')
-    #data_test['adsent'].append(response)
-        #filtered_response=model.answer_filter(response)
         data_test['adsent'].append(filtered_response)
         data_test['full_output']=full_response
     
