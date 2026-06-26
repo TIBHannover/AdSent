@@ -1,0 +1,12 @@
+accelerate==1.0.1
+bitsandbytes==0.45.3
+huggingface-hub==0.29.1
+numpy
+pandas
+protobuf==3.19.4
+safetensors==0.5.3
+scikit-learn==0.24.2
+sentencepiece==0.2.0
+tokenizers==0.20.3
+tqdm==4.67.1
+transformers==4.46.3
